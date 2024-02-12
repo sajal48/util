@@ -98,10 +98,13 @@ public class CheckCache {
     }
 
     private static void printDirectories(String status, List<String> directories) {
-        System.out.println("\n" + status + " Directories:");
-        for (String dir : directories) {
-            System.out.println(dir);
+        System.out.format("%-15s | %s%n", status, "Directories");
+        System.out.println("-------------------------");
+
+        for (String directory : directories) {
+            System.out.format("%-15s | %s%n", "", directory);
         }
+        System.out.println();
     }
 
     private static boolean isCacheEnabled(String jsonFilePath) throws IOException, ParseException {
