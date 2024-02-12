@@ -17,8 +17,7 @@ import java.util.concurrent.Future;
 
 public class CheckCache {
     // Set the root directory
-    public static String rootDir = "C:\\Users\\os-sajal.halder\\Desktop\\ECSG\\japan.web.gateway\\src\\main\\" +
-            "resources\\reloadable.config";
+    public static String rootDir = "C:\\Users\\os-sajal.halder\\Desktop\\ECSG\\gateway\\japan.gateway\\src\\main\\resources\\reloadable.config";
     // Set the checkFile name
     public static String checkFileName = "settings-prod.json";
 
@@ -28,6 +27,8 @@ public class CheckCache {
         // Lists to store enabled and disabled directories
         List<String> enabledDirectories = new ArrayList<>();
         List<String> disabledDirectories = new ArrayList<>();
+        List<String> allFieldCacheKey = new ArrayList<>();
+        List<String> notAllFieldCacheKey = new ArrayList<>();
 
         // Create an ExecutorService with a fixed number of threads
         int numThreads = Runtime.getRuntime().availableProcessors(); // Use the number of available processors
@@ -43,7 +44,8 @@ public class CheckCache {
 
                 // Submit each directory for processing
                 futures.add(executorService.submit(
-                        () -> processDirectory(jsonFilePath, dir, enabledDirectories, disabledDirectories)));
+                        () -> processDirectory(jsonFilePath, dir, enabledDirectories, disabledDirectories,
+                                allFieldCacheKey,notAllFieldCacheKey)));
             }
 
             // Wait for all tasks to complete
@@ -60,19 +62,27 @@ public class CheckCache {
         }
 
         // Display the results
-        printDirectories("Enabled", enabledDirectories);
+
+        printDirectories("AllCache", allFieldCacheKey);
+        printDirectories("NotAllCache", notAllFieldCacheKey);
+//        printDirectories("Enabled", enabledDirectories);
+        printDirectories("Disabled", disabledDirectories);
 //        printDirectories("Disabled", disabledDirectories);
     }
 
     private static void processDirectory(String jsonFilePath, String dir, List<String> enabledDirectories,
-                                         List<String> disabledDirectories) {
+                                         List<String> disabledDirectories,List<String> allFields,
+                                         List<String> notAllField) {
         // Check if settings-prod.json exists in the current directory
         if (new File(jsonFilePath).exists()) {
             try {
                 if (isCacheEnabled(jsonFilePath)) {
-                    if(!hasCacheKeyForAllParameter(jsonFilePath)){
-                        enabledDirectories.add(dir);
-                    };
+                    enabledDirectories.add(dir);
+                    if(hasCacheKeyForAllParameter(jsonFilePath)){
+                        allFields.add(dir);
+                    } else{
+                        notAllField.add(dir);
+                    }
                 } else {
                     disabledDirectories.add(dir);
                 }
